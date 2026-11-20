@@ -1,5 +1,5 @@
 
-const starting_time = new Date("2026-12-21T12:00:00").getTime();
+const starting_time = new Date("2026-12-21T11:00:00").getTime();
 
 function start_clock() {
     const now = new Date().getTime();
