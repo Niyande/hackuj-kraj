@@ -12,14 +12,16 @@
     <link rel="icon" href="logopion.ico">
 </head>
 <body>
-    <div id="top">
-        <h1>mapAED - AED Blisko Ciebie.</h1>
-        <img src="mappoziom.webp" alt="logo-aed" class="logo-aed">
-    </div>
+        <div id="top">
+            <h1>mapAED - AED Blisko Ciebie.</h1>
+            <img src="mappoziom.webp" alt="logo-aed" class="logo-aed">
+            <img src="polkolko.webp" alt="Kontrast" class="kontrast" onclick="kontrast()">
+            <img src="czcionka.webp" alt="Czcionka" class="fontt" onclick="duzyfont()">
+        </div>
     <div class="wrapper">
         <div id="left">
             <h2>Reset lokalizacji</h2>
-            <input type="button" id="g1" onclick="g1()" value="Reset lokalizacji">
+            <input type="button" id="btn-reset" value="Reset lokalizacji">
             <button id="g1">Pobierz lokalizację</button>
             <br>
             <p id="status">Kliknij przycisk, aby pobrać współrzędne.</p>
@@ -30,9 +32,9 @@
             <p>Tu będzie mapa</p>
         </div>
     </div>
-    <div id="footer">
+    <footer>
         <p>Takie tam prawa autorsie itd itd itdi tdit ditd it diteidtitididtidt</p>
-    </div>
+    </footer>
 
 </body>
 </html>
