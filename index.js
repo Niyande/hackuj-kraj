@@ -3,8 +3,8 @@ const express = require("express")
 const app = express()
 
 // Handling GET / request
-app.use("/", (req, res, next) => {
-    res.send("This is the express server")
+app.get("/", (req, res, next) => {
+    res.sendFile("index.html", {root: __dirname});
 })
 
 // Handling GET /hello request
@@ -14,5 +14,5 @@ app.get("/hello", (req, res, next) => {
 
 // Server setup
 app.listen(3000, () => {
-    console.log("Server is Running")
+    console.log("Server is Running");
 })
