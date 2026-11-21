@@ -1,6 +1,10 @@
 // Importing express module
 const express = require("express");
+var bodyParser = require('body-parser');
+
 const server = express();
+var jsonParser = bodyParser.json();
+
 server.use(express.static(__dirname));
 
 const admin = require("firebase-admin");
@@ -11,10 +15,7 @@ admin.initializeApp({
 
 // As an admin, the app has access to read and write all data, regardless of Security Rules
 const db = getDatabase();
-const ref = db.ref("0");
-ref.once("value", (snapshot) => {
-    console.log(snapshot.val());
-});
+const ref = db.ref();
 
 console.log(admin.getApp().name);  // '[DEFAULT]'
 
@@ -30,14 +31,16 @@ server.get("/", (req, res, next) => {
 //         res.json(locations.val());
 //     });
 // })
-
-server.post("/upload", (req, next) => {
-    var newEntry = require("./example-data/example.json");
-
+server.use(express.json());
+server.post("/upload", jsonParser, (req, res) => {
+    console.log(req.body);
+    var newEntry = req.body;
     //TODO check for type here
     //TODO convert to json if not already
-
-    ref.push(newEntry);
+    for (var e in newEntry) {
+        ref.push(newEntry[e]);
+    }
+    res.send();
 })
 
 // Server setup
