@@ -1,20 +1,17 @@
 // Importing express module
 const express = require("express");
-const app = express();
+const server = express();
+server.use(express.static(__dirname));
+
 const admin = require("firebase-admin");
-// const { initializeApp } = require('firebase-admin/app');
 const { getDatabase } = require('firebase-admin/database');
-// const { cert } = require('firebase-admin/credential')
 admin.initializeApp({
     databaseURL: "https://misja-aed-default-rtdb.europe-west1.firebasedatabase.app"
 });
 
-
-
-
 // As an admin, the app has access to read and write all data, regardless of Security Rules
 const db = getDatabase();
-const ref = db.ref("restricted_access/secret_document");
+const ref = db.ref("0");
 ref.once("value", (snapshot) => {
     console.log(snapshot.val());
 });
@@ -22,12 +19,19 @@ ref.once("value", (snapshot) => {
 console.log(admin.getApp().name);  // '[DEFAULT]'
 
 // Handling GET / request
-app.get("/", (req, res, next) => {
+server.get("/", (req, res, next) => {
     res.sendFile("index.html", {root: __dirname});
 })
 
+// Handling GET /locations request
+server.get("/locations/:location", (req, res) => {
+    let range = 1000;
+    db.ref().once("value", (locations) => {
+        res.json(locations.val());
+    });
+})
 
 // Server setup
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log("Server is Running");
 })
