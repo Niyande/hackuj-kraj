@@ -5,11 +5,12 @@ let dlugoscGeograficzna = null;
     const statusTekst = document.getElementById("status");
     const poleLat = document.getElementById("wyswietl-lat");
     const poleLon = document.getElementById("wyswietl-lon");
+    const przyciskReset = document.getElementById("btn-reset");
 
     async function pobierzLokalizacje() {
       // Sprawdzenie bezpiecznego kontekstu (HTTPS lub localhost)
       if (!window.isSecureContext) {
-        statusTekst.innerHTML = '<span class="blad">Błąd: Uruchom plik przez serwer lokalny (localhost) lub HTTPS, a nie bezpośrednio z dysku (file://).</span>';
+        statusTekst.innerHTML = '<span class="blad">Błąd: </span>';
         return;
       }
 
@@ -53,8 +54,16 @@ let dlugoscGeograficzna = null;
         statusTekst.innerHTML = `<span class="blad">${komunikat}</span>`;
       }
     }
+    function resetujLokalizacje() {
+      szerokoscGeograficzna = null;
+      dlugoscGeograficzna = null;
+      statusTekst.textContent = "Zresetowano. Kliknij przycisk, aby pobrać współrzędne.";
+      poleLat.textContent = "-";
+      poleLon.textContent = "-";
+    }
 
     przycisk.addEventListener("click", pobierzLokalizacje);
+    przyciskReset.addEventListener("click", resetujLokalizacje);
 
 
 
