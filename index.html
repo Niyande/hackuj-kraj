@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <title>AED Zadanie super zajebiste</title>
     <link rel="icon" href="logopion.ico">
@@ -20,6 +20,12 @@
     <div id="left">
         <h2>Reset lokalizacji</h2>
         <input type="button" id="g1" onclick="g1()" value="Reset lokalizacji">
+        <button id="g1">Pobierz lokalizację</button>
+    </div>
+    <div class="wynik">
+        <p id="status">Kliknij przycisk, aby pobrać współrzędne.</p>
+        <p>Szerokość geograficzna (Latitude): <strong id="wyswietl-lat">-</strong></p>
+        <p>Długość geograficzna (Longitude): <strong id="wyswietl-lon">-</strong></p>
     </div>
     <div id="main-map">
        <p>Tu będzie mapa</p>
