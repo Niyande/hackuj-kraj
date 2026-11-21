@@ -1,6 +1,7 @@
 let szerokoscGeograficzna = null;
 let dlugoscGeograficzna = null;
 
+    
     const przycisk = document.getElementById("g1");
     const statusTekst = document.getElementById("status");
     const poleLat = document.getElementById("wyswietl-lat");
@@ -65,5 +66,28 @@ let dlugoscGeograficzna = null;
     przycisk.addEventListener("click", pobierzLokalizacje);
     przyciskReset.addEventListener("click", resetujLokalizacje);
 
+function kontrast()
+{
+
+    document.body.classList.toggle("kontrast");
+
+    document.body.style.backgroundColor = "black";
+    document.body.style.color="yellow";
+
+
+}
+  let licznik;
+function duzyfont(krok)
+{
+
+    const root = document.documentElement;
+    const obecny = parseFloat(getComputedStyle(root).fontSize);
+    const nowy = Math.min(Math.max(obecny + krok, 10), 24);
+    
+    if(nowy >=24)root.style.fontSize = "16px";
+    else root.style.fontSize = nowy + "px";
+    
+
+}
 
 
