@@ -24,11 +24,20 @@ server.get("/", (req, res, next) => {
 })
 
 // Handling GET /locations request
-server.get("/locations/:location", (req, res) => {
-    let range = 1000;
-    db.ref().once("value", (locations) => {
-        res.json(locations.val());
-    });
+// server.get("/locations/:location", (req, res) => {
+//     let range = 1000;
+//     db.ref().once("value", (locations) => {
+//         res.json(locations.val());
+//     });
+// })
+
+server.post("/upload", (req, next) => {
+    var newEntry = require("./example-data/example.json");
+
+    //TODO check for type here
+    //TODO convert to json if not already
+
+    ref.push(newEntry);
 })
 
 // Server setup
