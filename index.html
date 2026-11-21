@@ -6,43 +6,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="script.js" defer></script>
+    <script src="script.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <title>MapAED - AED Blisko Ciebie</title>
     <link rel="icon" href="logopion.ico">
 </head>
-<body onload="g1()">
+<body>
     <div id="top">
         <h1>mapAED - AED Blisko Ciebie.</h1>
-        <img src="mappoziom.webp" alt="logo-aed">
+        <img src="mappoziom.webp" alt="logo-aed" class="logo-aed">
     </div>
-<<<<<<< HEAD
     <div class="wrapper">
         <div id="left">
             <h2>Reset lokalizacji</h2>
             <input type="button" id="g1" onclick="g1()" value="Reset lokalizacji">
+            <button id="g1">Pobierz lokalizację</button>
+            <br>
+            <p id="status">Kliknij przycisk, aby pobrać współrzędne.</p>
+            <p>Szerokość geograficzna (Latitude): <br><strong id="wyswietl-lat">-</strong></p>
+            <p>Długość geograficzna (Longitude): <br><strong id="wyswietl-lon">-</strong></p>
         </div>
         <div id="main-map">
             <p>Tu będzie mapa</p>
         </div>
-=======
- 
-    <div id="left">
-        <h2>Reset lokalizacji</h2>
-        <input type="button" id="g1" onclick="g1()" value="Reset lokalizacji">
-        <button id="g1">Pobierz lokalizację</button>
-    </div>
-    <div class="wynik">
-        <p id="status">Kliknij przycisk, aby pobrać współrzędne.</p>
-        <p>Szerokość geograficzna (Latitude): <strong id="wyswietl-lat">-</strong></p>
-        <p>Długość geograficzna (Longitude): <strong id="wyswietl-lon">-</strong></p>
-    </div>
-    <div id="main-map">
-       <p>Tu będzie mapa</p>
->>>>>>> 9100b693352c1b0ae96afe295aecf94fa6ace706
     </div>
     <div id="footer">
         <p>Takie tam prawa autorsie itd itd itdi tdit ditd it diteidtitididtidt</p>
     </div>
+
 </body>
 </html>

@@ -7,7 +7,7 @@
 body{
     background-color: #F7F0F5;
 }
-img{ 
+.logo-aed{ 
     height: 150px;
     width: 250px;
     margin-top: -140px;
@@ -38,13 +38,11 @@ h1{
     clear: both;
 }
 #left{
-    border: 2px solid black;
     width: 20%;
     height: 30%;
     float: left;
 }
 #main-map{
-    border: 2px solid black;
     clear: both;
     width: 80%
 }
