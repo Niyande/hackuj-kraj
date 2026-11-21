@@ -1,40 +1,89 @@
 <!DOCTYPE html>
-<html lang="PL-pl">
+<html lang="pl-PL">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="script.js" defer></script>
     <link rel="stylesheet" href="style.css">
-    <title>MapAED - AED Blisko Ciebie</title>
-    <link rel="icon" href="media/logopion.ico">
+    <title>mapAED</title>
 </head>
 <body>
-        <div id="top">
-            <h1>mapAED - AED Blisko Ciebie.</h1>
-            <img src="media/mappoziom.webp" alt="logo-aed" class="logo-aed">
-            <img src="media/polkolko.webp" alt="Kontrast" class="kontrast" onclick="kontrast()">
-            <img src="media/czcionka.webp" alt="Czcionka" class="fontt" onclick="duzyfont(2)">
+    <header>
+        <div id="header_left">
+            <img src="logopoziom.png" alt="Logo" id="header_logo">
+            <span id="header_title">Serwis danych o miejscach z AED</span>
         </div>
-    <div class="wrapper">
-        <div id="left">
-            <h2>Reset lokalizacji</h2>
-            <input type="button" id="btn-reset" value="Reset lokalizacji">
-            <button id="g1">Pobierz lokalizację</button>
-            <br>
-            <p id="status">Kliknij przycisk, aby pobrać współrzędne.</p>
-            <p>Szerokość geograficzna (Latitude): <br><strong id="wyswietl-lat">-</strong></p>
-            <p>Długość geograficzna (Longitude): <br><strong id="wyswietl-lon">-</strong></p>
+        <div id="header_right">
+            <button type="button" class="wcag-btn" onclick="changeFontSize(-1)" title="Zmniejsz czcionkę">A-</button>
+                <button type="button" class="wcag-btn" onclick="resetFontSize()" title="Domyślny rozmiar czcionki">A</button>
+                <button type="button" class="wcag-btn" onclick="changeFontSize(1)" title="Zwiększ czcionkę">A+</button>
+                <button type="button" class="wcag-btn" id="contrast_btn" onclick="toggleHighContrast()" title="Włącz wysoki kontrast"><img src="polkolko.png" id="contrast_img"></button>
         </div>
-        <div id="main-map">
-            <p>Tu będzie mapa</p>
-        </div>
-    </div>
-    <footer>
-        <p>Takie tam prawa autorsie itd itd itdi tdit ditd it diteidtitididtidt</p>
-    </footer>
-
+    </header>
+    <main>
+        <form action="">
+            <article>
+                <h2>1. Metadane zgłoszenia</h2>
+                <p>
+                    <label for="institution_name"><b>Nazwa instytucji</b></label>
+                    <br>
+                    <input type="text" name="institution_name" id="institution_name">
+                </p>
+            </article>
+            <article>
+                <h2>2. Import danych</h2>
+                <p>lorem ipsum</p>
+            </article>
+            <article>
+                <h2>3. Manualne edytowanie</h2>
+                <p>lorem ipsum</p>
+            </article>
+            <article>
+                <h2>4. Weryfikacja wytycznych</h2>
+                <p>
+                    <ul>
+                        <li>ID zgłoszenia</li>
+                        <li>Czas dostępności</li>
+                        <li>Ogólna dostępność</li>
+                        <li>Producent</li>
+                        <li>Dostęp publiczny</li>
+                        <li>Nr budynku</li>
+                        <li>Miejscowość</li>
+                        <li>Opis miejsca</li>
+                        <li>Nazwa budynku</li>
+                        <li>Kod pocztowy</li>
+                        <li>Nazwa ulicy</li>
+                    </ul>
+                </p>
+            </article>
+            <footer>
+                <br><hr><br>
+            </footer>
+        </form>
+    </main>
 </body>
+<script>
+    let currentFontScale = 16;
+
+        function changeFontSize(delta) {
+            currentFontScale = Math.max(12, Math.min(24, currentFontScale + (delta * 2)));
+            document.documentElement.style.setProperty('--font-scale', currentFontScale + 'px');
+        }
+
+        function resetFontSize() {
+            currentFontScale = 16;
+            document.documentElement.style.setProperty('--font-scale', '16px');
+        }
+
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            const btn = document.getElementById('contrast_btn');
+            if(document.body.classList.contains('high-contrast')) {
+                document.getElementById("header_logo").src="invertedlogopoziom.png";
+                document.getElementById("contrast_img").src="bialepolkolko.png";
+            } else {
+                document.getElementById("header_logo").src="logopoziom.png";
+                document.getElementById("contrast_img").src="polkolko.png";
+            }
+        }
+</script>
 </html>
