@@ -1,52 +1,136 @@
-*{
-    box-sizing: border-box;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        
-        text-align: center;
-}
-body{
-    background-color: #F7F0F5;
-}
-.logo-aed{ 
-    height: 150px;
-    width: 250px;
-    margin-top: -140px;
-    display: flex;
-}
-.kontrast{
-    display: flex;
-    height: 15%;
-    width: 1.5%;
-    margin-top: -140px;
-    margin-left: auto;
-}
-.fontt{
-     display: flex;
-    margin-left: 97%;
-    height: 20%;
-    width: 2%;
-    margin-top: -1.75%;
-}
-h1{
-    padding: 25px;
+:root {
+    --bg-page: #ffffff;
+    --bg-subtle: #f7f0f5;
+    --bg-header: #f8f9fa;
+    --text-main: #06070E;
+    --text-muted: #4b5563;
+    --border-color: #d1d5db;
+    --border-dark: #1f2937;
+    --border-article: #81D6E3;
+    --border-header: #EE2E31;
+
+    --font-scale: 16px;
 }
 
-#top{
-    border-bottom: 2px solid black;
-    height: 150px;
-    margin-top:auto;
-    clear: both;
+html {
+    font-size: var(--font-scale);
+    box-sizing: border-box;
 }
-#left{
-    width: 20%;
-    height: 30%;
-    float: left;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    line-height: 1.5;
+    font-size: 1rem;
 }
-#main-map{
-    clear: both;
-    width: 80%
+header{
+    background-color: var(--bg-header);
+    border-bottom: 4px solid var(--border-header);
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
-.wrapper{
-  margin: 0 auto;
-  display: flex;
+#header_logo{
+    margin-left: 3rem;
+    height: 5rem;
+    display: inline-block;
+    vertical-align: middle;
+    
 }
+#header_title{
+    font-size: 2rem;
+    margin-left: 3rem;
+    margin-top: 2rem;
+    line-height: 100%;
+    height: 100%;
+    vertical-align: middle;
+    display: inline;
+}
+#header_left{
+    text-align: centerS;
+}
+#header_right{
+    float: right;
+    background-color: white;
+    margin-right: 3rem;
+}
+#header_right > button{
+    background: none;
+    border: 1px solid var(--border-dark);
+    padding: 0.2rem 0.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 2px;
+}
+#contrast_img{
+    height: 1rem;
+    vertical-align: middle;
+}
+main{
+    width: 100%;
+}
+img{
+    background: none;
+    border: none;
+    background-blend-mode: color;
+}
+article{
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--border-article);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 2px;
+    margin: auto;
+    width: 85%;
+    margin-top: 1.5rem;
+}
+hr{
+    width: 85%;
+    color: var(--text-main);
+}
+body.high-contrast,
+        body.high-contrast * {
+            background-color: #000000 !important;
+            color: #ffff00 !important;
+            border-color: #ffffff !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        body.high-contrast input,
+        body.high-contrast select,
+        body.high-contrast textarea,
+        body.high-contrast button,
+        body.high-contrast table,
+        body.high-contrast th,
+        body.high-contrast td,
+        body.high-contrast pre {
+            background-color: #000000 !important;
+            color: #ffff00 !important;
+            border: 1px solid #ffffff !important;
+        }
+
+
+        body.high-contrast a {
+            color: #ffff00 !important;
+            text-decoration: underline !important;
+        }
+
+        body.high-contrast .status-badge.valid {
+            background-color: #000000 !important;
+            color: #00ff00 !important;
+            border: 1px solid #00ff00 !important;
+        }
+
+        body.high-contrast .status-badge.invalid {
+            background-color: #000000 !important;
+            color: #ff3333 !important;
+            border: 1px solid #ff3333 !important;
+        }
