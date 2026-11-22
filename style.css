@@ -63,13 +63,14 @@ header{
     background: none;
     border: 1px solid var(--border-dark);
     padding: 0.2rem 0.5rem;
-    font-size: 1rem;
+    font-size: 2rem;
     font-weight: 800;
     cursor: pointer;
     border-radius: 2px;
+    width: 5rem;
 }
 #contrast_img{
-    height: 1rem;
+    height: 2rem;
     vertical-align: middle;
 }
 main{
