@@ -35,7 +35,7 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
-server.post("/upload" (req, res) => {
+server.post("/upload", (req, res) => {
     console.log(req.body);
     var newEntry = req.body;
     //TODO check for type here

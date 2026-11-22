@@ -5,64 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>mapAED</title>
+    <link rel="icon" type="image/x-icon" href="media/logopion.webp">
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <header>
         <div id="header_left">
-            <img src="logopoziom.png" alt="Logo" id="header_logo">
+            <img src="media/logopoziom.png" alt="Logo" id="header_logo">
             <span id="header_title">Serwis danych o miejscach z AED</span>
         </div>
         <div id="header_right">
             <button type="button" class="wcag-btn" onclick="changeFontSize(-1)" title="Zmniejsz czcionkę">A-</button>
                 <button type="button" class="wcag-btn" onclick="resetFontSize()" title="Domyślny rozmiar czcionki">A</button>
                 <button type="button" class="wcag-btn" onclick="changeFontSize(1)" title="Zwiększ czcionkę">A+</button>
-                <button type="button" class="wcag-btn" id="contrast_btn" onclick="toggleHighContrast()" title="Włącz wysoki kontrast"><img src="polkolko.png" id="contrast_img"></button>
+                <button type="button" class="wcag-btn" id="contrast_btn" onclick="toggleHighContrast()" title="Włącz wysoki kontrast"><img src="media/polkolko.png" id="contrast_img"></button>
         </div>
     </header>
     <main>
-        <form action="">
-            <article>
-                <h2>1. Metadane zgłoszenia</h2>
+        
+            <article id="file_import_container">
+                <h2>Import danych</h2>
+                <div id="obramowka" class="dropbox" onclick="document.getElementById('file-import').click()">
+                    <form id="plik" method="" action="">
+                        <span id="file_text">Kliknij aby wybrać plik</span>
+                        <input type="file" name="file" id="file-import">
+                    </form>
+                </div> 
+                <span>Obsługiwane rozszerzenia plików: XLSX</span>
+            </article>
+            <article id="main_article" style="display: none;">
+                <form action="/upload" method="POST">
+                <h2>Manualne edytowanie</h2>
                 <p>
-                    <label for="institution_name"><b>Nazwa instytucji</b></label>
-                    <br>
-                    <input type="text" name="institution_name" id="institution_name">
+                    <div id="table_wrapper"><table id="manual_data"></table></div>
+                </p>
+                <label for="publisher">Podpisz instytucję: </label>
+                <input type="text" name="publisher">
+                    <input type="submit" value="submit">
+                </form>
+            </article>
+            <article id="export_article" style="display: none;">
+                <h2>Eksport wszystkich aktualnych punktów AED</h2>
+                <p>
+                    Eksportuj se
                 </p>
             </article>
-            <article>
-                <h2>2. Import danych</h2>
-                <p>lorem ipsum</p>
-            </article>
-            <article>
-                <h2>3. Manualne edytowanie</h2>
-                <p>lorem ipsum</p>
-            </article>
-            <article>
-                <h2>4. Weryfikacja wytycznych</h2>
-                <p>
-                    <ul>
-                        <li>ID zgłoszenia</li>
-                        <li>Czas dostępności</li>
-                        <li>Ogólna dostępność</li>
-                        <li>Producent</li>
-                        <li>Dostęp publiczny</li>
-                        <li>Nr budynku</li>
-                        <li>Miejscowość</li>
-                        <li>Opis miejsca</li>
-                        <li>Nazwa budynku</li>
-                        <li>Kod pocztowy</li>
-                        <li>Nazwa ulicy</li>
-                    </ul>
-                </p>
+            <article id="file_import_container2" style="display: none;">
+                <h2>Import danych</h2>
+                <div id="obramowka2" class="dropbox" onclick="document.getElementById('file-import').click()">
+                    <form id="plik" method="" action="">
+                        <span id="file_text">Kliknij aby wybrać plik</span>
+                        <input type="file" name="file" id="file-import">
+                    </form>
+                </div> 
+                <span>Obsługiwane rozszerzenia plików: XLSX</span>
+
             </article>
             <footer>
                 <br><hr><br>
             </footer>
-        </form>
     </main>
 </body>
 <script>
     let currentFontScale = 16;
+
+    var excel_file = document.getElementById("file-import")
+
+    excel_file.addEventListener('change', (event) => {
+
+    if (!['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'].includes(event.target.files[0].type)) {
+        document.getElementById('manual_data').innerHTML = '<div class="alert alert-danger">Only .xlsx or .xls file format are allowed</div>';
+
+        excel_file.value = '';
+        return false;
+    }
+
+    var reader = new FileReader();
+
+      reader.readAsArrayBuffer(event.target.files[0]);
+
+      reader.onload = function (event) {
+
+            var data = new Uint8Array(reader.result);
+
+            var work_book = XLSX.read(data, { type: 'array' });
+
+            var beginning_table = "<tr><th>ID AED</th><th>Szerokość geograficzna</th><th>Długość geograficzna</th><th>Godziny dostępu</th><th>Położenie</th><th>Lokalizacja</th><th>Krótki opis</th></tr>"
+
+            var sheet_name = work_book.SheetNames;
+
+            var sheet_data = XLSX.utils.sheet_to_json(work_book.Sheets[sheet_name[0]], { header: 1 });
+
+            var k = 0;
+
+
+            if (sheet_data.length > 0) {
+                  var table_output = '<table class="listViewTable table-sortable" id="listViewTable">';
+
+                    
+
+                  for (var row = 0; row < sheet_data.length; row++) {
+
+                    if((sheet_data[row].length != 7) && k!=1){
+                            alert("Źle sformatowany plik, musi zawierać 7 kolumn!");
+                            k=1;
+                            row=200;
+                    }   
+                    
+                    table_output += '<tr>';
+
+
+                        
+                        
+                        for (var cell = 0; cell < sheet_data[row].length; cell++) {
+
+                            if(cell==0){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==1){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==2){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==3){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==4){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==5){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==6){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                            if(cell==7){
+                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
+                            }
+                        }
+
+                        table_output += '</tr>';
+
+                  }
+
+                  table_output += '</table>';
+
+                  document.getElementById('manual_data').innerHTML = beginning_table+table_output;
+                  document.getElementById("main_article").style="display: block;";
+                  document.getElementById("export_article").style="display: block;";
+                  document.getElementById("file_import_container").style="display: none;";
+                  document.getElementById("file_import_container2").style="height: 360px; display: block;";
+                  document.getElementById("obramowka2").style="height: 70%;";
+
+            }
+
+                excel_file.value = '';
+
+                }
+
+            });
+
+
+    
 
         function changeFontSize(delta) {
             currentFontScale = Math.max(12, Math.min(24, currentFontScale + (delta * 2)));
@@ -78,11 +183,11 @@
             document.body.classList.toggle('high-contrast');
             const btn = document.getElementById('contrast_btn');
             if(document.body.classList.contains('high-contrast')) {
-                document.getElementById("header_logo").src="invertedlogopoziom.png";
-                document.getElementById("contrast_img").src="bialepolkolko.png";
+                document.getElementById("header_logo").src="media/invertedlogopoziom.png";
+                document.getElementById("contrast_img").src="media/bialepolkolko.png";
             } else {
-                document.getElementById("header_logo").src="logopoziom.png";
-                document.getElementById("contrast_img").src="polkolko.png";
+                document.getElementById("header_logo").src="media/logopoziom.png";
+                document.getElementById("contrast_img").src="media/polkolko.png";
             }
         }
 </script>
