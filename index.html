@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <title>mapAED</title>
     <link rel="icon" type="image/x-icon" href="media/logopion.webp">
-    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <header>
@@ -34,21 +34,23 @@
                 <span>Obsługiwane rozszerzenia plików: XLSX</span>
             </article>
             <article id="main_article" style="display: none;">
-                <form action="/upload" method="POST">
-                <h2>Manualne edytowanie</h2>
-                <p>
-                    <div id="table_wrapper"><table id="manual_data"></table></div>
-                </p>
-                <label for="publisher">Podpisz instytucję: </label>
-                <input type="text" name="publisher">
-                    <input type="submit" value="submit">
+                <form id="upload_form">
+                    <h2>Manualne edytowanie</h2>
+                    <p><div id="table_wrapper"><table id="manual_data"></table></div></p>
+                    <button type="button" id="add_row" class="row_btn">+ Dodaj rekord</button>
+                    <label for="publisher" style="margin-left: 3rem;font-weight: 600;">Podpisz instytucję: </label>
+                    <input type="text" name="publisher" id="publisher">
+                    <input type="submit" value="Wyślij plik" id="file_submit">
                 </form>
             </article>
             <article id="export_article" style="display: none;">
-                <h2>Eksport wszystkich aktualnych punktów AED</h2>
                 <p>
-                    Eksportuj se
+                    <div id="export_wrapper" class="dropbox" onclick="exportXlsx()">
+                        <img src="media/export.png" alt="Pobierz plik z wszystkimi punktami AED" id="export_png"><br>
+                        <span id="export_span">Pobierz plik z wszystkimi punktami AED</span>
+                    </div>
                 </p>
+                
             </article>
             <article id="file_import_container2" style="display: none;">
                 <h2>Import danych</h2>
@@ -69,126 +71,174 @@
 <script>
     let currentFontScale = 16;
 
-    var excel_file = document.getElementById("file-import")
+    const COLS = ["id", "lat", "lon", "hours", "position", "location", "description"];
+    const HEADERS = ["ID AED", "Szerokość geograficzna", "Długość geograficzna",
+                     "Godziny dostępu", "Położenie", "Lokalizacja", "Krótki opis"];
 
-    excel_file.addEventListener('change', (event) => {
+    const excel_file = document.getElementById("file-import");
 
-    if (!['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'].includes(event.target.files[0].type)) {
-        document.getElementById('manual_data').innerHTML = '<div class="alert alert-danger">Only .xlsx or .xls file format are allowed</div>';
-
-        excel_file.value = '';
-        return false;
+    const esc = (v) => String(v ?? "")
+        .replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    
+     function rowHtml(values = []) {
+        const cells = COLS.map((_, i) => {
+            const isNum = (i === 1 || i === 2);
+            return `<td><input type="${isNum ? "number" : "text"}"${isNum ? ' step="0.000001"' : ""} value="${esc(values[i])}"></td>`;
+        }).join("");
+        return `<tr>${cells}<td><button type="button" class="row_btn" onclick="deleteRow(this)" title="Usuń rekord">✕</button></td></tr>`;
     }
 
-    var reader = new FileReader();
+    function addRow() {
+        const table = document.getElementById("manual_data");
+        (table.tBodies[0] || table).insertAdjacentHTML("beforeend", rowHtml());
+        const last = table.querySelector("tr:last-child input");
+        last.scrollIntoView({ block: "center" });
+        last.focus();
+    }
 
-      reader.readAsArrayBuffer(event.target.files[0]);
+    function deleteRow(btn) {
+        btn.closest("tr").remove();
+    }
 
-      reader.onload = function (event) {
+    document.getElementById("add_row").addEventListener("click", addRow);
 
-            var data = new Uint8Array(reader.result);
+    // ---------- IMPORT XLSX → tabela ----------
+    excel_file.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            var work_book = XLSX.read(data, { type: 'array' });
+        if (!/\.xlsx?$/i.test(file.name)) {
+            alert("Dozwolone są tylko pliki .xlsx lub .xls");
+            excel_file.value = "";
+            return;
+        }
 
-            var beginning_table = "<tr><th>ID AED</th><th>Szerokość geograficzna</th><th>Długość geograficzna</th><th>Godziny dostępu</th><th>Położenie</th><th>Lokalizacja</th><th>Krótki opis</th></tr>"
+        const reader = new FileReader();
+        reader.onload = () => {
+            const wb = XLSX.read(new Uint8Array(reader.result), { type: "array" });
+            const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],
+                { header: 1, defval: "", blankrows: false });
 
-            var sheet_name = work_book.SheetNames;
+            // jeśli pierwszy wiersz to nagłówek (szerokość nie jest liczbą) – pomijamy go
+            if (rows.length && isNaN(parseFloat(String(rows[0][1]).replace(",", ".")))) rows.shift();
 
-            var sheet_data = XLSX.utils.sheet_to_json(work_book.Sheets[sheet_name[0]], { header: 1 });
-
-            var k = 0;
-
-
-            if (sheet_data.length > 0) {
-                  var table_output = '<table class="listViewTable table-sortable" id="listViewTable">';
-
-                    
-
-                  for (var row = 0; row < sheet_data.length; row++) {
-
-                    if((sheet_data[row].length != 7) && k!=1){
-                            alert("Źle sformatowany plik, musi zawierać 7 kolumn!");
-                            k=1;
-                            row=200;
-                    }   
-                    
-                    table_output += '<tr>';
-
-
-                        
-                        
-                        for (var cell = 0; cell < sheet_data[row].length; cell++) {
-
-                            if(cell==0){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==1){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==2){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==3){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==4){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==5){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==6){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                            if(cell==7){
-                                table_output += '<td><input type="text" value=' + sheet_data[row][cell] +'>'+'</td>';
-                            }
-                        }
-
-                        table_output += '</tr>';
-
-                  }
-
-                  table_output += '</table>';
-
-                  document.getElementById('manual_data').innerHTML = beginning_table+table_output;
-                  document.getElementById("main_article").style="display: block;";
-                  document.getElementById("export_article").style="display: block;";
-                  document.getElementById("file_import_container").style="display: none;";
-                  document.getElementById("file_import_container2").style="height: 360px; display: block;";
-                  document.getElementById("obramowka2").style="height: 70%;";
-
+            if (!rows.length) {
+                alert("Plik nie zawiera danych.");
+                excel_file.value = "";
+                return;
+            }
+            if (rows.some(r => r.length !== 7)) {
+                alert("Źle sformatowany plik, musi zawierać 7 kolumn!");
+                excel_file.value = "";
+                return;
             }
 
-                excel_file.value = '';
+            const head = "<tr>" + HEADERS.map(h => `<th>${h}</th>`).join("") + "<th></th></tr>";
+            const body = rows.map(r => rowHtml(r)).join("");
 
-                }
+            document.getElementById("manual_data").innerHTML = head + body;
+            document.getElementById("main_article").style = "display: block;";
+            document.getElementById("export_article").style = "display: block;";
+            document.getElementById("file_import_container").style = "display: none;";
+            document.getElementById("file_import_container2").style = "height: 360px; display: block;";
+            document.getElementById("obramowka2").style = "height: 70%;";
 
+            excel_file.value = "";
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    // ---------- WYSYŁKA tabeli na serwer (→ Firebase) ----------
+    document.getElementById("upload_form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const publisher = document.getElementById("publisher").value.trim();
+        if (!publisher) {
+            alert("Podpisz instytucję.");
+            return;
+        }
+
+        const points = [...document.querySelectorAll("#manual_data tr")].slice(1).map(tr => {
+            const v = [...tr.querySelectorAll("input")].map(i => i.value.trim());
+            return Object.fromEntries(COLS.map((c, i) => [c, v[i]]));
+        }).filter(p => COLS.some(c => p[c]));
+
+        if (!points.length) {
+            alert("Brak rekordów do wysłania.");
+            return;
+        }
+
+        const btn = document.getElementById("file_submit");
+        btn.disabled = true;
+        try {
+            const res = await fetch("/upload", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ publisher, points })
             });
-
-
-    
-
-        function changeFontSize(delta) {
-            currentFontScale = Math.max(12, Math.min(24, currentFontScale + (delta * 2)));
-            document.documentElement.style.setProperty('--font-scale', currentFontScale + 'px');
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || ("Błąd serwera (" + res.status + ")"));
+            alert("Wysłano punktów: " + data.count);
+        } catch (err) {
+            alert("Nie udało się wysłać danych: " + err.message);
+        } finally {
+            btn.disabled = false;
         }
+    });
 
-        function resetFontSize() {
-            currentFontScale = 16;
-            document.documentElement.style.setProperty('--font-scale', '16px');
-        }
+    // ---------- EKSPORT wszystkich punktów z bazy ----------
+    async function fetchPoints() {
+        const res = await fetch("/points");
+        if (!res.ok) throw new Error("Błąd serwera (" + res.status + ")");
+        return res.json();
+    }
 
-        function toggleHighContrast() {
-            document.body.classList.toggle('high-contrast');
-            const btn = document.getElementById('contrast_btn');
-            if(document.body.classList.contains('high-contrast')) {
-                document.getElementById("header_logo").src="media/invertedlogopoziom.png";
-                document.getElementById("contrast_img").src="media/bialepolkolko.png";
-            } else {
-                document.getElementById("header_logo").src="media/logopoziom.png";
-                document.getElementById("contrast_img").src="media/polkolko.png";
-            }
+    async function exportXlsx() {
+        try {
+            const pts = await fetchPoints();
+            if (!pts.length) { alert("Baza jest pusta."); return; }
+            // te same kolumny co przy imporcie – pobrany plik można wgrać z powrotem
+            const aoa = [HEADERS, ...pts.map(p => COLS.map(c => p[c] ?? ""))];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), "AED");
+            XLSX.writeFile(wb, "punkty_AED.xlsx");
+        } catch (err) {
+            alert("Nie udało się pobrać danych: " + err.message);
         }
+    }
+
+    async function exportJson() {
+        try {
+            const pts = await fetchPoints();
+            if (!pts.length) { alert("Baza jest pusta."); return; }
+            const blob = new Blob([JSON.stringify(pts, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "punkty_AED.json";
+            a.click();
+            URL.revokeObjectURL(a.href);
+        } catch (err) {
+            alert("Nie udało się pobrać danych: " + err.message);
+        }
+    }
+
+    // ---------- WCAG ----------
+    function changeFontSize(delta) {
+        currentFontScale = Math.max(12, Math.min(24, currentFontScale + (delta * 2)));
+        document.documentElement.style.setProperty('--font-scale', currentFontScale + 'px');
+    }
+
+    function resetFontSize() {
+        currentFontScale = 16;
+        document.documentElement.style.setProperty('--font-scale', '16px');
+    }
+
+    function toggleHighContrast() {
+        document.body.classList.toggle('high-contrast');
+        const on = document.body.classList.contains('high-contrast');
+        document.getElementById("header_logo").src = on ? "media/invertedlogopoziom.png" : "media/logopoziom.png";
+        document.getElementById("contrast_img").src = on ? "media/bialepolkolko.png" : "media/polkolko.png";
+    }
 </script>
 </html>
