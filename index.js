@@ -4,7 +4,7 @@ const { getDatabase, ServerValue } = require("firebase-admin/database");
 
 initializeApp({
     credential: applicationDefault(),
-    databaseURL: "https://misja-aed-default-rtdb.europe-west1.firebasedatabase.app"
+              databaseURL: "https://misja-aed-default-rtdb.europe-west1.firebasedatabase.app"
 });
 
 const db = getDatabase();
@@ -18,18 +18,6 @@ server.get("/", (req, res) => {
     res.sendFile("index.html", { root: __dirname });
 });
 
-<<<<<<< HEAD
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({
-    extended: true
-}));
-server.post("/upload", (req, res) => {
-    console.log(req.body);
-    var newEntry = req.body;
-    //TODO check completness
-    for (var e in newEntry) {
-        ref.push(newEntry[e]);
-=======
 const str = (v) => String(v ?? "").trim();
 const num = (v) => Number(String(v ?? "").replace(",", "."));
 const keyOf = (id) => id.replace(/[.$#\[\]\/]/g, "_");
@@ -57,7 +45,6 @@ server.post("/upload", async (req, res) => {
     }
     if (points.length > 5000) {
         return res.status(400).json({ error: "Za dużo punktów naraz (max 5000)." });
->>>>>>> b6f3d2d8b5d0c8018c27828ec87b49a7ad52e9e2
     }
 
     const updates = {};
