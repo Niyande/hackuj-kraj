@@ -3,7 +3,6 @@ const express = require("express");
 var bodyParser = require('body-parser');
 
 const server = express();
-// var jsonParser = bodyParser.json();
 
 server.use(express.static(__dirname));
 
@@ -24,22 +23,14 @@ server.get("/", (req, res, next) => {
     res.sendFile("index.html", {root: __dirname});
 })
 
-// Handling GET /locations request
-// server.get("/locations/:location", (req, res) => {
-//     let range = 1000;
-//     db.ref().once("value", (locations) => {
-//         res.json(locations.val());
-//     });
-// })
 server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+server.use(bodyParser.urlencoded({
     extended: true
 }));
 server.post("/upload", (req, res) => {
     console.log(req.body);
     var newEntry = req.body;
-    //TODO check for type here
-    //TODO convert to json if not already
+    //TODO check completness
     for (var e in newEntry) {
         ref.push(newEntry[e]);
     }
