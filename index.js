@@ -1,10 +1,9 @@
 // Importing express module
 const express = require("express");
 var bodyParser = require('body-parser');
-var multer = require("multer");
 
 const server = express();
-var jsonParser = bodyParser.json();
+// var jsonParser = bodyParser.json();
 
 server.use(express.static(__dirname));
 
@@ -32,8 +31,11 @@ server.get("/", (req, res, next) => {
 //         res.json(locations.val());
 //     });
 // })
-// server.use(multer());
-server.post("/upload", multer, (req, res) => {
+server.use(bodyParser.json();
+server.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+}));
+server.post("/upload" (req, res) => {
     console.log(req.body);
     var newEntry = req.body;
     //TODO check for type here
