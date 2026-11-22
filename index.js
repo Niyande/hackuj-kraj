@@ -1,52 +1,80 @@
-// Importing express module
 const express = require("express");
-var bodyParser = require('body-parser');
+const { initializeApp, applicationDefault } = require("firebase-admin/app");
+const { getDatabase, ServerValue } = require("firebase-admin/database");
 
-const server = express();
-// var jsonParser = bodyParser.json();
-
-server.use(express.static(__dirname));
-
-const admin = require("firebase-admin");
-const { getDatabase } = require('firebase-admin/database');
-admin.initializeApp({
+initializeApp({
+    credential: applicationDefault(),
     databaseURL: "https://misja-aed-default-rtdb.europe-west1.firebasedatabase.app"
 });
 
-// As an admin, the app has access to read and write all data, regardless of Security Rules
 const db = getDatabase();
-const ref = db.ref();
+const aedRef = db.ref("aed");
 
-console.log(admin.getApp().name);  // '[DEFAULT]'
+const server = express();
+server.use(express.static(__dirname));
+server.use(express.json({ limit: "5mb" }));
 
-// Handling GET / request
-server.get("/", (req, res, next) => {
-    res.sendFile("index.html", {root: __dirname});
-})
+server.get("/", (req, res) => {
+    res.sendFile("index.html", { root: __dirname });
+});
 
-// Handling GET /locations request
-// server.get("/locations/:location", (req, res) => {
-//     let range = 1000;
-//     db.ref().once("value", (locations) => {
-//         res.json(locations.val());
-//     });
-// })
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-    extended: true
-}));
-server.post("/upload", (req, res) => {
-    console.log(req.body);
-    var newEntry = req.body;
-    //TODO check for type here
-    //TODO convert to json if not already
-    for (var e in newEntry) {
-        ref.push(newEntry[e]);
+const str = (v) => String(v ?? "").trim();
+const num = (v) => Number(String(v ?? "").replace(",", "."));
+const keyOf = (id) => id.replace(/[.$#\[\]\/]/g, "_");
+
+function cleanPoint(p) {
+    const id = str(p.id);
+    const lat = num(p.lat);
+    const lon = num(p.lon);
+    if (!id || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+    return {
+        id, lat, lon,
+        hours: str(p.hours),
+        position: str(p.position),
+        location: str(p.location),
+        description: str(p.description)
+    };
+}
+
+server.post("/upload", async (req, res) => {
+    console.log("UPLOAD:", JSON.stringify(req.body).slice(0, 300));
+    const { publisher, points } = req.body || {};
+    if (!Array.isArray(points) || points.length === 0) {
+        return res.status(400).json({ error: "Brak punktów do wysłania." });
     }
-    res.send();
-})
+    if (points.length > 5000) {
+        return res.status(400).json({ error: "Za dużo punktów naraz (max 5000)." });
+    }
 
-// Server setup
-server.listen(3000, () => {
-    console.log("Server is Running");
-})
+    const updates = {};
+    const bad = [];
+    points.forEach((p, i) => {
+        const c = cleanPoint(p || {});
+        if (!c) { bad.push(i + 1); return; }
+        updates[keyOf(c.id)] = { ...c, publisher: str(publisher), updatedAt: ServerValue.TIMESTAMP };
+    });
+    if (bad.length) {
+        return res.status(400).json({ error: "Nieprawidłowe dane w wierszach: " + bad.join(", ") });
+    }
+
+    try {
+        await aedRef.update(updates);
+        res.json({ ok: true, count: Object.keys(updates).length });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Błąd zapisu do bazy." });
+    }
+});
+
+server.get("/points", async (req, res) => {
+    try {
+        const snap = await aedRef.once("value");
+        res.json(Object.values(snap.val() || {}));
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Błąd odczytu z bazy." });
+    }
+});
+
+server.listen(3000, () => console.log("Server is Running"));
