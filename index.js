@@ -31,7 +31,7 @@ server.get("/", (req, res, next) => {
 //         res.json(locations.val());
 //     });
 // })
-server.use(bodyParser.json();
+server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
